@@ -104,11 +104,7 @@ if (isset($_POST['add_guest'])) {
             "&sf=true&output=xml";
 
 
-        // Fetch existing guests
-        $stmt = $pdo->prepare("SELECT id, name, email, note, plus_one, rsvp_token FROM guests WHERE event_id = ?");
 
-        $stmt->execute([$event_id]);
-        $guests = $stmt->fetchAll();
         // Send RSVP Email
         $confirmation_url = "http://localhost/capstone/guest/confirm_rsvp.php?token=$rsvp_token";
         $to = $email;
@@ -127,6 +123,11 @@ if (isset($_POST['add_guest'])) {
 
     }
 }
+        // Fetch existing guests
+        $stmt = $pdo->prepare("SELECT id, name, email, note, plus_one, rsvp_token FROM guests WHERE event_id = ?");
+
+        $stmt->execute([$event_id]);
+        $guests = $stmt->fetchAll();
 
 ?>
 

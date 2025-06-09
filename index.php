@@ -20,6 +20,7 @@ $events = $stmt->fetchAll();
 </head>
 <body>
     <h1>Welcome to EventJoin</h1>
+	<h2>Webhook is working</h2>
     <p>Discover upcoming public events!</p>
 
     <?php if (count($events) > 0): ?>
