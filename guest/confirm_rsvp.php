@@ -33,6 +33,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$already_submitted) {
     $stmt = $pdo->prepare("UPDATE guests SET rsvp_status = ?, note = ?, plus_one = ?, rsvp_at = NOW() WHERE id = ?");
     $stmt->execute([$rsvp_status, $rsvp_note, $plus_one, $guest['id']]);
 
+    // Send RSVP confirmation email if guest email exists
+    if (!empty($guest['email'])) {
+        $to = $guest['email'];
+        $subject = "Your RSVP has been received – " . $event['title'];
+        
+        $statusText = strtoupper($rsvp_status) === 'YES' ? 'confirmed' : 'declined';
+        $plusOneText = $plus_one ? 'Yes' : 'No';
+        
+        $message = "
+            <html>
+            <head><title>RSVP Confirmation</title></head>
+            <body style='font-family: Arial, sans-serif;'>
+                <h2>Thank you, {$guest['name']}!</h2>
+                <p>Your RSVP for <strong>{$event['title']}</strong> has been <strong>{$statusText}</strong>.</p>
+                <p><strong>Event Date:</strong> " . date('F j, Y', strtotime($event['event_date'])) . "<br>
+                <strong>Time:</strong> " . date('g:i A', strtotime($event['event_time'])) . "<br>
+                <strong>Location:</strong> {$event['hall_name']}</p>
+                <p><strong>Bringing Guest:</strong> {$plusOneText}<br>
+                <strong>Note:</strong> " . nl2br(htmlspecialchars($rsvp_note)) . "</p>
+                <p><a href='{$googleLink}' target='_blank'>➕ Add to Google Calendar</a></p>
+                <hr>
+                <p style='font-size: 12px; color: #555;'>This is an automated message from EventJoin.</p>
+            </body>
+            </html>
+        ";
+
+        $headers  = "MIME-Version: 1.0" . "\r\n";
+        $headers .= "Content-type: text/html; charset=UTF-8" . "\r\n";
+        $headers .= "From: EventJoin <no-reply@svkzone.com>" . "\r\n";
+
+        mail($to, $subject, $message, $headers);
+    }
+
+
     $submitted = true;
     $already_submitted = true;
 
