@@ -7,7 +7,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'requestor') {
     exit;
 }
 
-// Fetch halls for the dropdown
+include '../includes/header.php';
+include '../includes/sidebar.php';
+
+// Fetch halls for dropdown
 $hallStmt = $pdo->query("SELECT id, name FROM halls");
 $halls = $hallStmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -24,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $is_public = $_POST['is_public'] ?? 0;
 
     $stmt = $pdo->prepare("INSERT INTO events (title, description, event_date, event_time, hall_id, created_by, status, rsvp_deadline, rsvp_limit, is_public)
-    VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)");
+        VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)");
 
     $stmt->execute([
         $title, $description, $event_date, $event_time,
@@ -35,54 +38,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Submit Event Request</title>
-    <link rel="stylesheet" href="../css/style.css">
-</head>
-<body>
-    <h2>Submit a New Event Request</h2>
+<div class="main-content container py-5">
+    <h2 class="mb-4">Submit a New Event Request</h2>
 
     <?php if ($message): ?>
-        <p style="color:green;"><?php echo $message; ?></p>
+        <div class="alert alert-success"><?= htmlspecialchars($message) ?></div>
     <?php endif; ?>
 
-    <form method="POST">
-        <label>Title:</label><br>
-        <input type="text" name="title" required><br><br>
+    <form method="POST" class="row g-4">
+        <div class="col-md-6">
+            <label class="form-label">Title</label>
+            <input type="text" name="title" class="form-control" required>
+        </div>
 
-        <label>Description:</label><br>
-        <textarea name="description" rows="4" required></textarea><br><br>
+        <div class="col-md-6">
+            <label class="form-label">Date</label>
+            <input type="date" name="event_date" class="form-control" required>
+        </div>
 
-        <label>Date:</label><br>
-        <input type="date" name="event_date" required><br><br>
+        <div class="col-md-6">
+            <label class="form-label">Time</label>
+            <input type="time" name="event_time" class="form-control" required>
+        </div>
 
-        <label>Time:</label><br>
-        <input type="time" name="event_time" required><br><br>
+        <div class="col-md-6">
+            <label class="form-label">RSVP Deadline</label>
+            <input type="date" name="rsvp_deadline" class="form-control" required>
+        </div>
 
-        <label>Hall:</label><br>
-        <select name="hall_id" required>
-            <option value="">-- Select Hall --</option>
-            <?php foreach ($halls as $hall): ?>
-                <option value="<?php echo $hall['id']; ?>"><?php echo $hall['name']; ?></option>
-            <?php endforeach; ?>
-        </select><br><br>
+        <div class="col-md-6">
+            <label class="form-label">RSVP Limit</label>
+            <input type="number" name="rsvp_limit" class="form-control" min="1" required>
+        </div>
 
-        <label>RSVP Deadline:</label><br>
-        <input type="date" name="rsvp_deadline" required><br><br>
+        <div class="col-md-6">
+            <label class="form-label">Hall</label>
+            <select name="hall_id" class="form-select" required>
+                <option value="">-- Select Hall --</option>
+                <?php foreach ($halls as $hall): ?>
+                    <option value="<?= $hall['id'] ?>"><?= htmlspecialchars($hall['name']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
 
-        <label>RSVP Limit:</label><br>
-        <input type="number" name="rsvp_limit" min="1" required><br><br>
-        <label>Event Visibility:</label><br>
-        <select name="is_public" required>
-            <option value="0">Private (invite only)</option>
-            <option value="1">Public (visible on homepage)</option>
-        </select><br><br>
+        <div class="col-md-6">
+            <label class="form-label">Event Visibility</label>
+            <select name="is_public" class="form-select" required>
+                <option value="0">Private (invite only)</option>
+                <option value="1">Public (visible on homepage)</option>
+            </select>
+        </div>
 
-        <button type="submit">Submit Request</button>
+        <div class="col-12">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" rows="4" required></textarea>
+        </div>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Submit Request</button>
+            <a href="../index.php" class="btn btn-secondary ms-2">Back to Dashboard</a>
+        </div>
     </form>
+</div>
 
-    <p><a href="../dashboard.php">Back to Dashboard</a></p>
-</body>
-</html>
+<?php include '../includes/footer.php'; ?>

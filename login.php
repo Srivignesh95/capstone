@@ -1,12 +1,25 @@
 <?php
 session_start();
-require 'config/conn.php';
+require_once 'config/conn.php';
+include 'includes/header.php';
+include 'includes/sidebar.php';
 
 $error = '';
 
+// Capture GET redirect and store in session
+if (isset($_GET['redirect'])) {
+    $_SESSION['redirect_after_login'] = $_GET['redirect'];
+}
+
+// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
+
+    // Capture POST redirect again to preserve it
+    if (isset($_POST['redirect'])) {
+        $_SESSION['redirect_after_login'] = $_POST['redirect'];
+    }
 
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
     $stmt->execute([$email]);
@@ -15,7 +28,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['role'] = $user['role'];
-        header("Location: dashboard.php");
+        $_SESSION['username'] = $user['username'] ?? '';
+
+        // Load profile pic into session (optional for nav avatar)
+        $_SESSION['profile_pic'] = $user['profile_pic'] ?? '';
+
+        // Redirect logic
+        if (isset($_SESSION['redirect_after_login'])) {
+            $redirectTo = $_SESSION['redirect_after_login'];
+            unset($_SESSION['redirect_after_login']);
+            header("Location: $redirectTo");
+            exit;
+        }
+
+        // Role-based fallback
+        if ($user['role'] === 'admin') {
+            header("Location: /capstone/dashboard.php");
+        } elseif ($user['role'] === 'requestor') {
+            header("Location: /capstone/registered_user/index.php");
+        } else {
+            header("Location: /capstone/registered_user/index.php");
+        }
         exit;
     } else {
         $error = "Invalid email or password.";
@@ -23,25 +56,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login - EventJoin</title>
-    <link rel="stylesheet" href="styles/style.css">
-</head>
-<body>
-    <h2>Login to EventJoin</h2>
-    <form method="POST">
-        <label>Email:</label><br>
-        <input type="email" name="email" required><br><br>
+<div class="login-container">
+    <!-- Left Panel -->
+    <div class="login-left">
+        <h1>Log In to <br> EventJoin</h1>
+        <p>Connect, coordinate, and engage with your events smoothly.</p>
+    </div>
 
-        <label>Password:</label><br>
-        <input type="password" name="password" required><br><br>
+    <!-- Right Panel -->
+    <div class="login-right">
+        <h2>Sign In to your Account</h2>
+        <p>Welcome back! Please enter your details</p>
 
-        <button type="submit">Login</button>
-    </form>
-    <?php if ($error): ?>
-        <p style="color:red;"><?php echo $error; ?></p>
-    <?php endif; ?>
-</body>
-</html>
+        <form method="POST">
+            <?php if (isset($_GET['redirect'])): ?>
+                <input type="hidden" name="redirect" value="<?= htmlspecialchars($_GET['redirect']) ?>">
+            <?php endif; ?>
+
+            <div class="position-relative mb-3">
+                <span class="form-icon">&#9993;</span>
+                <input type="email" name="email" class="form-control" placeholder="Email" required>
+            </div>
+
+            <div class="position-relative mb-3">
+                <span class="form-icon">&#128273;</span>
+                <input type="password" name="password" class="form-control" placeholder="Password" required>
+            </div>
+
+            <button type="submit" class="btn btn-signin">Sign In</button>
+        </form>
+
+        <?php if ($error): ?>
+            <div class="text-danger mt-3"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <div class="mt-3 text-center">
+            <a href="forgot-password.php" class="text-decoration-none">Forgot Password?</a>
+        </div>
+    </div>
+</div>
+
+<?php include 'includes/footer.php'; ?>

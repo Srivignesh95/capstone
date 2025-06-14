@@ -7,51 +7,74 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'requestor') {
     exit;
 }
 
+include '../includes/header.php';
+include '../includes/sidebar.php';
+
 // Fetch events submitted by the current requestor
 $stmt = $pdo->prepare("
-    SELECT e.title, e.event_date, e.rsvp_deadline, e.status, h.name AS hall_name
+    SELECT e.id, e.title, e.event_date, e.rsvp_deadline, e.status, e.delete_requested, h.name AS hall_name
     FROM events e
     JOIN halls h ON e.hall_id = h.id
     WHERE e.created_by = ?
     ORDER BY e.event_date DESC
 ");
+
 $stmt->execute([$_SESSION['user_id']]);
 $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>My Submitted Events</title>
-    <link rel="stylesheet" href="../css/style.css">
-</head>
-<body>
-    <h2>My Event Requests</h2>
+<div class="main-content container py-4">
+    <h2 class="mb-4">My Event Requests</h2>
 
     <?php if (count($events) > 0): ?>
-        <table border="1" cellpadding="8" cellspacing="0">
-            <tr>
-                <th>Title</th>
-                <th>Date</th>
-                <th>Hall</th>
-                <th>RSVP Deadline</th>
-                <th>Status</th>
-            </tr>
-            <?php foreach ($events as $event): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($event['title']); ?></td>
-                    <td><?php echo $event['event_date']; ?></td>
-                    <td><?php echo htmlspecialchars($event['hall_name']); ?></td>
-                    <td><?php echo $event['rsvp_deadline']; ?></td>
-                    <td><strong><?php echo ucfirst($event['status']); ?></strong></td>
-                </tr>
-            <?php endforeach; ?>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Title</th>
+                        <th>Date</th>
+                        <th>Hall</th>
+                        <th>RSVP Deadline</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($events as $event): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($event['title']) ?></td>
+                            <td><?= $event['event_date'] ?></td>
+                            <td><?= htmlspecialchars($event['hall_name']) ?></td>
+                            <td><?= $event['rsvp_deadline'] ?></td>
+                            <td><strong><?= ucfirst($event['status']) ?></strong></td>
+                            <td>
+                                <a href="edit_event.php?event_id=<?= $event['id'] ?>" class="btn btn-sm btn-outline-secondary me-2">Edit</a>
+                                <a href="manage_event.php?event_id=<?= $event['id'] ?>" class="btn btn-sm btn-outline-primary me-2">Manage Guests</a>
+                                <?php if ($event['delete_requested']): ?>
+                                    <span class="badge bg-warning text-dark">Deletion Pending</span>
+                                <?php else: ?>
+                                    <form method="POST" action="request_delete.php" style="display:inline;">
+                                        <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Send deletion request to venue manager?');">
+                                            Request Delete
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     <?php else: ?>
-        <p>No event requests submitted yet.</p>
+        <p class="text-muted">You haven’t submitted any events yet.</p>
     <?php endif; ?>
 
-    <p><a href="submit_event.php">+ Submit New Event</a></p>
-    <p><a href="../dashboard.php">Back to Dashboard</a></p>
-</body>
-</html>
+    <div class="mt-3">
+        <a href="submit_event.php" class="btn btn-success">+ Submit New Event</a>
+        <a href="/capstone/registered_user/my_events.php" class="btn btn-link">Back to Dashboard</a>
+    </div>
+</div>
+
+<?php include '../includes/footer.php'; ?>

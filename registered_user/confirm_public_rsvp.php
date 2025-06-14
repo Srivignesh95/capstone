@@ -1,9 +1,11 @@
 <?php
 session_start();
 require_once '../config/conn.php';
+include '../includes/header.php';
+include '../includes/sidebar.php';
 
 // Make sure user is logged in and is a registered user
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'registered_user') {
+if (!isset($_SESSION['user_id'])) {
     header("Location: ../login.php");
     exit;
 }
