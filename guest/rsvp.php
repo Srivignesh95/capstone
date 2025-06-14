@@ -1,5 +1,7 @@
 <?php
 require_once '../config/conn.php';
+include '../includes/header.php';
+include '../includes/sidebar.php';
 
 $event_id = $_GET['event_id'] ?? null;
 $submitted = false;
@@ -29,36 +31,44 @@ if ($event_id) {
 }
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>RSVP - <?php echo htmlspecialchars($title); ?></title>
-    <link rel="stylesheet" href="../css/style.css">
-</head>
-<body>
-    <h2>RSVP to: <?php echo htmlspecialchars($title); ?></h2>
+<div class="main-content container py-4">
+    <h2 class="mb-4">RSVP for: <?= htmlspecialchars($title) ?></h2>
 
     <?php if ($submitted): ?>
-        <p style="color:green;">Thank you! Your RSVP has been recorded.</p>
+        <div class="alert alert-success">
+            Thank you! Your RSVP has been recorded.
+        </div>
     <?php else: ?>
-        <form method="POST">
-            <input type="hidden" name="event_id" value="<?php echo $event_id; ?>">
+        <form method="POST" class="row g-3">
+            <input type="hidden" name="event_id" value="<?= htmlspecialchars($event_id) ?>">
 
-            <label>Name:</label><br>
-            <input type="text" name="name" required><br><br>
+            <div class="col-md-6">
+                <label class="form-label">Full Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
 
-            <label>Email (optional):</label><br>
-            <input type="email" name="email"><br><br>
+            <div class="col-md-6">
+                <label class="form-label">Email (optional)</label>
+                <input type="email" name="email" class="form-control">
+            </div>
 
-            <label>Note (e.g. meal preference):</label><br>
-            <textarea name="note" rows="3"></textarea><br><br>
+            <div class="col-md-12">
+                <label class="form-label">Note / Dietary Preferences</label>
+                <textarea name="note" class="form-control" rows="3" placeholder="Optional..."></textarea>
+            </div>
 
-            <label>
-                <input type="checkbox" name="plus_one"> Bringing a guest?
-            </label><br><br>
+            <div class="col-md-12">
+                <label class="form-check-label">
+                    <input type="checkbox" name="plus_one" class="form-check-input"> Bringing a guest?
+                </label>
+            </div>
 
-            <button type="submit">Submit RSVP</button>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Submit RSVP</button>
+                <a href="../index.php" class="btn btn-secondary ms-2">Back</a>
+            </div>
         </form>
     <?php endif; ?>
-</body>
-</html>
+</div>
+
+<?php include '../includes/footer.php'; ?>

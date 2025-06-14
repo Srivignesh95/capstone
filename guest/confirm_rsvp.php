@@ -1,51 +1,49 @@
 <?php
 require_once '../config/conn.php';
+include '../includes/header.php';
+include '../includes/sidebar.php';
 
 $token = $_GET['token'] ?? null;
 
 if (!$token) {
-    echo "Invalid link.";
+    echo "<div class='alert alert-danger m-4'>Invalid RSVP link.</div>";
+    include '../includes/footer.php';
     exit;
 }
 
-// Fetch guest using token
 $stmt = $pdo->prepare("SELECT * FROM guests WHERE rsvp_token = ?");
 $stmt->execute([$token]);
 $guest = $stmt->fetch();
 
 if (!$guest) {
-    echo "Invalid or expired RSVP link.";
+    echo "<div class='alert alert-danger m-4'>Invalid or expired RSVP token.</div>";
+    include '../includes/footer.php';
     exit;
 }
 
 $already_submitted = $guest['rsvp_status'] !== null;
 $submitted = false;
-$message = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$already_submitted) {
     $rsvp_status = $_POST['rsvp_status'];
     $rsvp_note = trim($_POST['rsvp_note'] ?? '');
-    if ($rsvp_note === '') {
-        $rsvp_note = $guest['note'];
-    }
+    if ($rsvp_note === '') $rsvp_note = $guest['note'];
     $plus_one = isset($_POST['plus_one']) ? 1 : 0;
 
-    $stmt = $pdo->prepare("
-        UPDATE guests
-        SET rsvp_status = ?, note = ?, plus_one = ?, rsvp_at = NOW()
-        WHERE id = ?
-    ");
+    $stmt = $pdo->prepare("UPDATE guests SET rsvp_status = ?, note = ?, plus_one = ?, rsvp_at = NOW() WHERE id = ?");
     $stmt->execute([$rsvp_status, $rsvp_note, $plus_one, $guest['id']]);
 
     $submitted = true;
     $already_submitted = true;
+
+    // Refresh guest data
     $guest['rsvp_status'] = $rsvp_status;
-    $guest['rsvp_note'] = $rsvp_note;
+    $guest['note'] = $rsvp_note;
     $guest['plus_one'] = $plus_one;
     $guest['rsvp_at'] = date('Y-m-d H:i:s');
 }
 
-// Fetch the event details using event_id
+// Fetch event details
 $eventStmt = $pdo->prepare("
     SELECT e.title, e.description, e.event_date, e.event_time, h.name AS hall_name
     FROM events e
@@ -55,55 +53,69 @@ $eventStmt = $pdo->prepare("
 $eventStmt->execute([$guest['event_id']]);
 $event = $eventStmt->fetch();
 
+// Google Calendar link
 $start = date('Ymd\THis', strtotime($event['event_date'] . ' ' . $event['event_time']));
-$end = date('Ymd\THis', strtotime($event['event_date'] . ' ' . $event['event_time'] . ' +2 hours')); // assume 2-hour duration
-
+$end = date('Ymd\THis', strtotime($event['event_date'] . ' ' . $event['event_time'] . ' +2 hours'));
 $googleLink = "https://www.google.com/calendar/render?action=TEMPLATE" .
     "&text=" . urlencode($event['title']) .
     "&dates=" . $start . "/" . $end .
     "&details=" . urlencode($event['description'] ?? '') .
     "&location=" . urlencode($event['hall_name']) .
     "&sf=true&output=xml";
-
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Confirm RSVP</title>
-    <link rel="stylesheet" href="../css/style.css">
-</head>
-<body>
-    <h2>RSVP Confirmation</h2>
+<div class="main-content container py-5">
+    <div class="card shadow-sm p-4">
+        <h2 class="mb-3">RSVP Confirmation</h2>
 
-    <?php if ($submitted): ?>
-        <p style="color:green;">Thank you, your RSVP has been recorded.</p>
-        <p>
-            <a href="<?php echo $googleLink; ?>" target="_blank">➕ Add to Google Calendar</a>
-        </p>
+        <?php if ($submitted): ?>
+            <div class="alert alert-success">Thank you, your RSVP has been recorded.</div>
+            <a href="<?= $googleLink ?>" target="_blank" class="btn btn-outline-primary">➕ Add to Google Calendar</a>
 
-    <?php elseif ($already_submitted): ?>
-        <p style="color:blue;">You have already submitted your RSVP on <strong><?php echo date('F j, Y \a\t g:i A', strtotime($guest['rsvp_at'])); ?></strong>.</p>
-        <p>Status: <strong><?php echo strtoupper($guest['rsvp_status']); ?></strong></p>
-        <p>+1: <?php echo $guest['plus_one'] ? 'Yes' : 'No'; ?></p>
-        <p>Note: <?php echo htmlspecialchars($guest['note'] ?? '-'); ?></p>
+        <?php elseif ($already_submitted): ?>
+            <div class="alert alert-info mb-3">
+                You already submitted your RSVP on <strong><?= date('F j, Y \a\t g:i A', strtotime($guest['rsvp_at'])) ?></strong>.
+            </div>
+            <ul class="list-group mb-3">
+                <li class="list-group-item"><strong>Status:</strong> <?= strtoupper($guest['rsvp_status']) ?></li>
+                <li class="list-group-item"><strong>+1:</strong> <?= $guest['plus_one'] ? 'Yes' : 'No' ?></li>
+                <li class="list-group-item"><strong>Note:</strong> <?= htmlspecialchars($guest['note'] ?? '-') ?></li>
+            </ul>
 
-    <?php else: ?>
-        <p>Hello <?php echo htmlspecialchars($guest['name']); ?>,</p>
-        <p>You’ve been invited to an event. Please confirm your attendance below.</p>
+        <?php else: ?>
+            <p>Hello <strong><?= htmlspecialchars($guest['name']) ?></strong>,</p>
+            <p>You’ve been invited to the event: <strong><?= htmlspecialchars($event['title']) ?></strong> on 
+                <strong><?= date('F j, Y', strtotime($event['event_date'])) ?> @ <?= date('g:i A', strtotime($event['event_time'])) ?></strong> at 
+                <strong><?= htmlspecialchars($event['hall_name']) ?></strong>.
+            </p>
 
-        <form method="POST">
-            <label>Will you attend?</label><br>
-            <label><input type="radio" name="rsvp_status" value="yes" required> Yes</label>
-            <label><input type="radio" name="rsvp_status" value="no" required> No</label><br><br>
+            <form method="POST" class="mt-4">
+                <div class="mb-3">
+                    <label class="form-label">Will you attend?</label><br>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="rsvp_status" value="yes" id="rsvp_yes" required>
+                        <label class="form-check-label" for="rsvp_yes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="rsvp_status" value="no" id="rsvp_no" required>
+                        <label class="form-check-label" for="rsvp_no">No</label>
+                    </div>
+                </div>
 
-            <label><input type="checkbox" name="plus_one" <?php echo $guest['plus_one'] ? 'checked' : ''; ?>> I’m bringing a guest</label><br><br>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="plus_one" name="plus_one" <?= $guest['plus_one'] ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="plus_one">I'm bringing a guest</label>
+                </div>
 
-            <label>Any note or dietary preference?</label><br>
-            <textarea name="rsvp_note" rows="3"><?php echo htmlspecialchars($guest['rsvp_note'] ?? ''); ?></textarea><br><br>
+                <div class="mb-3">
+                    <label for="rsvp_note" class="form-label">Any note or dietary preference?</label>
+                    <textarea name="rsvp_note" class="form-control" rows="3"><?= htmlspecialchars($guest['note'] ?? '') ?></textarea>
+                </div>
 
-            <button type="submit">Submit RSVP</button>
-        </form>
-    <?php endif; ?>
-</body>
-</html>
+                <button type="submit" class="btn btn-primary">Submit RSVP</button>
+            </form>
+        <?php endif; ?>
+    </div>
+</div>
+
+<?php include '../includes/footer.php'; ?>

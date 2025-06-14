@@ -65,6 +65,11 @@
                                 <i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Upcoming Events
                             </a>
                         </li>
+                        <li>
+                            <a href="/capstone/registered_user/past_events.php">
+                                <i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Past Events
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
