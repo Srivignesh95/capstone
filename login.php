@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['role'] = $user['role'];
-        $_SESSION['username'] = $user['username'] ?? '';
+        $_SESSION['username'] = $user['first_name'] ?? '';
 
         // Load profile pic into session (optional for nav avatar)
         $_SESSION['profile_pic'] = $user['profile_pic'] ?? '';
@@ -91,7 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <div class="mt-3 text-center">
-            <a href="forgot-password.php" class="text-decoration-none">Forgot Password?</a>
+            <a href="forgot-password.php" class="text-decoration-none">Forgot Password?</a> |
+            <a href="signup.php" class="text-decoration-none">Create a New Account</a>
         </div>
     </div>
 </div>

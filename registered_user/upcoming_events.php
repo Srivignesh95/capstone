@@ -16,7 +16,7 @@ $user_id = $_SESSION['user_id'];
 $stmt = $pdo->prepare("
     SELECT 
         e.id, e.title, e.event_date, e.event_time, e.description, e.created_by,
-        e.banner_image, h.name AS hall_name
+        e.banner_image,e.status, h.name AS hall_name
     FROM event_rsvps r
     JOIN events e ON r.event_id = e.id
     JOIN halls h ON e.hall_id = h.id
@@ -26,7 +26,7 @@ $stmt = $pdo->prepare("
 
     SELECT 
         e.id, e.title, e.event_date, e.event_time, e.description, e.created_by,
-        e.banner_image, h.name AS hall_name
+        e.banner_image,e.status, h.name AS hall_name
     FROM events e
     JOIN halls h ON e.hall_id = h.id
     WHERE e.created_by = ? AND e.event_date >= CURDATE()
@@ -69,7 +69,9 @@ $events = $stmt->fetchAll();
                             <p><?= nl2br(htmlspecialchars($event['description'])) ?></p>
 
                             <?php if ($event['created_by'] == $user_id): ?>
-                                <a href="/capstone/requestor/manage_event.php?event_id=<?= $event['id'] ?>" class="btn btn-outline-primary mt-2">Manage Event</a>
+                                <?php if ($event['status'] === 'approved'): ?>
+                                    <a href="manage_event.php?event_id=<?= $event['id'] ?>" class="btn btn-sm btn-outline-primary me-2">Manage Guests</a>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </div>
                     </div>

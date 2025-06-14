@@ -35,6 +35,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ]);
 
     $message = "Event request submitted successfully!";
+
+
+    // Fetch user email
+    $userStmt = $pdo->prepare("SELECT email, first_name FROM users WHERE id = ?");
+    $userStmt->execute([$_SESSION['user_id']]);
+    $user = $userStmt->fetch();
+
+    $to = $user['email'];
+    $firstName = $user['first_name'] ?? 'User';
+    $subject = "Event Request Submitted - Awaiting Approval";
+    $statusLink = "https://svkzone.com/capstone/requestor/my_events.php";
+
+    $body = "Hello $firstName,
+
+    Thank you for submitting your event request titled \"$title\".
+
+    Your request is currently awaiting review by the Venue Manager.
+
+    You will receive another email once it's approved or rejected.
+
+    You can also track the status of your event here:
+    $statusLink
+
+    Best regards,
+    EventJoin Team";
+
+    $headers = "From: no-reply@eventjoin.com\r\n";
+    $headers .= "Content-Type: text/plain; charset=utf-8\r\n";
+
+    // Send email
+    mail($to, $subject, $body, $headers);
+
 }
 ?>
 
@@ -96,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="col-12">
             <button type="submit" class="btn btn-primary">Submit Request</button>
-            <a href="../index.php" class="btn btn-secondary ms-2">Back to Dashboard</a>
+            <a href="/capstone/registered_user/my_events.php" class="btn btn-secondary ms-2">Back to Dashboard</a>
         </div>
     </form>
 </div>

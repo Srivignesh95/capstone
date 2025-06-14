@@ -13,8 +13,7 @@ include '../includes/sidebar.php';
 
 <div class="main-content">
     <section class="container py-5">
-        <h2 class="mb-4">Welcome, <?php echo htmlspecialchars($_SESSION['username'] ?? ''); ?>!</h2>
-        <p class="mb-4">Your role: <strong class="text-capitalize"><?php echo $_SESSION['role']; ?></strong></p>
+        <h2 class="mb-4">Welcome, <?php echo $_SESSION['username']; ?>!</h2>
 
         <div class="row g-4">
             <div class="col-md-4">

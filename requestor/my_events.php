@@ -2,7 +2,7 @@
 session_start();
 require_once '../config/conn.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'requestor') {
+if (!isset($_SESSION['user_id'])) {
     header("Location: ../login.php");
     exit;
 }
@@ -46,10 +46,20 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <td><?= $event['event_date'] ?></td>
                             <td><?= htmlspecialchars($event['hall_name']) ?></td>
                             <td><?= $event['rsvp_deadline'] ?></td>
-                            <td><strong><?= ucfirst($event['status']) ?></strong></td>
+                            <td>
+                                
+                            <?php if ($event['status'] === 'rejected'): ?>
+                                <strong><?= ucfirst($event['status']) . ' — Check your email for more details' ?></strong>
+                            <?php else: ?>
+                                <strong><?= ucfirst($event['status']) ?></strong>
+                            <?php endif; ?>
+
+                            </td>
                             <td>
                                 <a href="edit_event.php?event_id=<?= $event['id'] ?>" class="btn btn-sm btn-outline-secondary me-2">Edit</a>
-                                <a href="manage_event.php?event_id=<?= $event['id'] ?>" class="btn btn-sm btn-outline-primary me-2">Manage Guests</a>
+                                <?php if ($event['status'] === 'approved'): ?>
+                                    <a href="manage_event.php?event_id=<?= $event['id'] ?>" class="btn btn-sm btn-outline-primary me-2">Manage Guests</a>
+                                <?php endif; ?>
                                 <?php if ($event['delete_requested']): ?>
                                     <span class="badge bg-warning text-dark">Deletion Pending</span>
                                 <?php else: ?>

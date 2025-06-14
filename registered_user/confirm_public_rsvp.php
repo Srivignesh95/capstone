@@ -4,7 +4,7 @@ require_once '../config/conn.php';
 include '../includes/header.php';
 include '../includes/sidebar.php';
 
-// Make sure user is logged in and is a registered user
+// Ensure user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login.php");
     exit;
@@ -14,24 +14,25 @@ $userId = $_SESSION['user_id'];
 $eventId = $_GET['event_id'] ?? null;
 
 if (!$eventId) {
-    echo "No event specified.";
+    echo "<div class='main-content container py-4'><div class='alert alert-danger'>No event specified.</div></div>";
+    include '../includes/footer.php';
     exit;
 }
 
-// Check if event exists and is public
+// Validate event: must be approved and public
 $eventStmt = $pdo->prepare("SELECT * FROM events WHERE id = ? AND is_public = 1 AND status = 'approved'");
 $eventStmt->execute([$eventId]);
 $event = $eventStmt->fetch();
 
 if (!$event) {
-    echo "Event not found or is not public.";
+    echo "<div class='main-content container py-4'><div class='alert alert-warning'>Event not found or not public.</div></div>";
+    include '../includes/footer.php';
     exit;
 }
 
 // Check if user already RSVP'd
 $rsvpCheck = $pdo->prepare("SELECT * FROM event_rsvps WHERE user_id = ? AND event_id = ?");
 $rsvpCheck->execute([$userId, $eventId]);
-
 $alreadyRSVPd = $rsvpCheck->rowCount() > 0;
 
 if (!$alreadyRSVPd) {
@@ -40,21 +41,18 @@ if (!$alreadyRSVPd) {
 }
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>RSVP Confirmation</title>
-</head>
-<body>
-    <h2>Public Event RSVP</h2>
-    <p>
-        <?php if ($alreadyRSVPd): ?>
-            You've already RSVP'd to this event.
-        <?php else: ?>
-            Thank you! Your RSVP for <strong><?php echo htmlspecialchars($event['title']); ?></strong> has been recorded.
-        <?php endif; ?>
-    </p>
+<div class="main-content container py-5">
+    <h2 class="mb-4">Public Event RSVP Confirmation</h2>
 
-    <p><a href="browse_events.php">Back to Event List</a></p>
-</body>
-</html>
+    <div class="alert <?= $alreadyRSVPd ? 'alert-info' : 'alert-success' ?>">
+        <?php if ($alreadyRSVPd): ?>
+            You have already RSVP’d to <strong><?= htmlspecialchars($event['title']) ?></strong>.
+        <?php else: ?>
+            Thank you! Your RSVP for <strong><?= htmlspecialchars($event['title']) ?></strong> has been successfully recorded.
+        <?php endif; ?>
+    </div>
+
+    <a href="/capstone/index.php" class="btn btn-outline-primary mt-3">← Back to Event List</a>
+</div>
+
+<?php include '../includes/footer.php'; ?>
