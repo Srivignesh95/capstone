@@ -39,7 +39,16 @@
                         <span>Home</span>
                     </a>
                 </li>
-
+                <?php if ($_SESSION['role'] === 'venue_manager'): ?>
+                    <!-- Venue Manager Menu -->
+                    <li class="sidebar-divider"></li>
+                    <li>
+                        <a href="/capstone/venue_manager/admin_dashboard.php">
+                            <iconify-icon icon="solar:monitor-outline" class="menu-icon"></iconify-icon>
+                            <span>Admin Dashboard</span>
+                        </a>
+                    </li>
+                <?php endif ?>
                 <li class="dropdown">
                     <a href="javascript:void(0)">
                         <iconify-icon icon="solar:calendar-outline" class="menu-icon"></iconify-icon>

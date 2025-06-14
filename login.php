@@ -45,9 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user['role'] === 'admin') {
             header("Location: /capstone/dashboard.php");
         } elseif ($user['role'] === 'requestor') {
-            header("Location: /capstone/registered_user/index.php");
+            header("Location: /capstone/index.php");
         } else {
-            header("Location: /capstone/registered_user/index.php");
+            header("Location: /capstone/index.php");
         }
         exit;
     } else {
