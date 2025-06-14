@@ -102,7 +102,7 @@ if (isset($_POST['add_guest'])) {
             "&location=" . urlencode($event['hall_name']) .
             "&sf=true&output=xml";
 
-        $confirmation_url = "http://localhost/capstone/guest/confirm_rsvp.php?token=$rsvp_token";
+        $confirmation_url = "https://svkzone.com/capstone/guest/confirm_rsvp.php?token=$rsvp_token";
         $subject = "You're Invited! Please Confirm Your RSVP";
         $messageBody = "Hi $name,\n\nYou've been invited to: " . $event['title'] . ".
 Confirm RSVP: $confirmation_url\n\nAdd to Google Calendar:\n$googleCalLink";

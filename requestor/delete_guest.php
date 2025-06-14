@@ -5,7 +5,7 @@ require_once '../config/conn.php';
 $event_id = $_GET['event_id'] ?? null;
 $guest_id = $_GET['guest_id'] ?? null;
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'requestor' || !$event_id || !$guest_id) {
+if (!isset($_SESSION['user_id']) || !$event_id || !$guest_id) {
     header("Location: ../login.php");
     exit;
 }

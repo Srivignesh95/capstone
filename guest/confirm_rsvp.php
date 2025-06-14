@@ -52,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$already_submitted) {
                 <strong>Location:</strong> {$event['hall_name']}</p>
                 <p><strong>Bringing Guest:</strong> {$plusOneText}<br>
                 <strong>Note:</strong> " . nl2br(htmlspecialchars($rsvp_note)) . "</p>
-                <p><a href='{$googleLink}' target='_blank'>➕ Add to Google Calendar</a></p>
                 <hr>
                 <p style='font-size: 12px; color: #555;'>This is an automated message from EventJoin.</p>
             </body>

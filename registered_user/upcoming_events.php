@@ -12,11 +12,16 @@ include '../includes/sidebar.php';
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch upcoming RSVP'd events + check if user is the creator
+$user_id = $_SESSION['user_id'];
+
+// Get the logged-in user's email
+$userStmt = $pdo->prepare("SELECT email FROM users WHERE id = ?");
+$userStmt->execute([$user_id]);
+$userEmail = $userStmt->fetchColumn();
+
 $stmt = $pdo->prepare("
-    SELECT 
-        e.id, e.title, e.event_date, e.event_time, e.description, e.created_by,
-        e.banner_image,e.status, h.name AS hall_name
+    SELECT e.id, e.title, e.event_date, e.event_time, e.description, e.created_by,
+           e.banner_image, h.name AS hall_name
     FROM event_rsvps r
     JOIN events e ON r.event_id = e.id
     JOIN halls h ON e.hall_id = h.id
@@ -24,9 +29,17 @@ $stmt = $pdo->prepare("
 
     UNION
 
-    SELECT 
-        e.id, e.title, e.event_date, e.event_time, e.description, e.created_by,
-        e.banner_image,e.status, h.name AS hall_name
+    SELECT e.id, e.title, e.event_date, e.event_time, e.description, e.created_by,
+           e.banner_image, h.name AS hall_name
+    FROM guests g
+    JOIN events e ON g.event_id = e.id
+    JOIN halls h ON e.hall_id = h.id
+    WHERE g.email = ? AND g.rsvp_status = 'yes' AND e.event_date >= CURDATE()
+
+    UNION
+
+    SELECT e.id, e.title, e.event_date, e.event_time, e.description, e.created_by,
+           e.banner_image, h.name AS hall_name
     FROM events e
     JOIN halls h ON e.hall_id = h.id
     WHERE e.created_by = ? AND e.event_date >= CURDATE()
@@ -34,8 +47,9 @@ $stmt = $pdo->prepare("
     ORDER BY event_date ASC
 ");
 
-$stmt->execute([$user_id, $user_id]);
+$stmt->execute([$user_id, $userEmail, $user_id]);
 $events = $stmt->fetchAll();
+
 
 ?>
 
