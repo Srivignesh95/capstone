@@ -59,7 +59,7 @@ $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
 
 $body = "Hi $userName,
 
-This is a confirmation that you've successfully RSVP'd to the public event:
+This is a confirmation that you've successfully Registered to the public event:
 
 Event: $eventTitle
 Date: $eventDate at $eventTime

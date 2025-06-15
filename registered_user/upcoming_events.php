@@ -108,7 +108,7 @@ $events = $stmt->fetchAll();
 
                             <?php if ($event['created_by'] == $user_id): ?>
                                 <?php if ($event['status'] === 'approved'): ?>
-                                    <a href="manage_event.php?event_id=<?= $event['id'] ?>" class="btn btn-sm btn-outline-primary me-2">Manage Guests</a>
+                                    <a href="/capstone/requestor/manage_event.php?event_id=<?= $event['id'] ?>" class="btn btn-sm btn-outline-primary me-2">Manage Guests</a>
                                 <?php endif; ?>
                             <?php endif; ?>
                         </div>

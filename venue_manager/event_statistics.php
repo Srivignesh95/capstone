@@ -38,6 +38,7 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <th>Invited Guests</th>
                         <th>Total RSVPs</th>
                         <th>Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -60,6 +61,11 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         echo '<span class="badge bg-success">Open</span>';
                                     }
                                 ?>
+                            </td>
+                            <td>
+                                <a href="export_event_rsvps.php?event_id=<?= $event['id'] ?>" class="btn btn-sm btn-outline-success">
+                                    Export CSV
+                                </a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
