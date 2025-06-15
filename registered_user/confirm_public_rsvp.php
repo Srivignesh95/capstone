@@ -39,6 +39,38 @@ if (!$alreadyRSVPd) {
     $insert = $pdo->prepare("INSERT INTO event_rsvps (user_id, event_id, rsvp_status) VALUES (?, ?, 'yes')");
     $insert->execute([$userId, $eventId]);
 }
+
+$userStmt = $pdo->prepare("SELECT email, name FROM users WHERE id = ?");
+$userStmt->execute([$userId]);
+$user = $userStmt->fetch();
+
+$userEmail = $user['email'];
+$userName = $user['name'];
+
+// Fetch event details
+$eventTitle = $event['title'];
+$eventDate = date('F j, Y', strtotime($event['event_date']));
+$eventTime = date('g:i A', strtotime($event['event_time']));
+$eventHall = $event['hall_id']; 
+
+$subject = "RSVP Confirmation – $eventTitle";
+$headers = "From: no-reply@eventjoin.com\r\n";
+$headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+
+$body = "Hi $userName,
+
+This is a confirmation that you've successfully RSVP'd to the public event:
+
+Event: $eventTitle
+Date: $eventDate at $eventTime
+
+Thank you for registering!
+
+Regards,
+EventJoin Team";
+
+mail($userEmail, $subject, $body, $headers);
+
 ?>
 
 <div class="main-content container py-5">

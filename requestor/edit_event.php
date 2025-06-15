@@ -2,7 +2,7 @@
 session_start();
 require_once '../config/conn.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'requestor') {
+if (!isset($_SESSION['user_id']) ) {
     header("Location: ../login.php");
     exit;
 }

@@ -11,13 +11,34 @@ include 'includes/sidebar.php';
 $userId = $_SESSION['user_id'] ?? null;
 
 // Fetch upcoming public & approved events
+$sort = $_GET['sort'] ?? 'newest';
+
+switch ($sort) {
+    case 'oldest':
+        $orderBy = 'e.event_date ASC';
+        break;
+    case 'az':
+        $orderBy = 'e.title ASC';
+        break;
+    case 'za':
+        $orderBy = 'e.title DESC';
+        break;
+    case 'newest':
+    default:
+        $orderBy = 'e.event_date DESC';
+        break;
+}
+
+
+
 $stmt = $pdo->prepare("
     SELECT e.id, e.title, e.description, e.event_date, e.event_time, e.banner_image, h.name AS hall_name
     FROM events e
     JOIN halls h ON e.hall_id = h.id
     WHERE e.is_public = 1 AND e.status = 'approved' AND e.event_date >= CURDATE()
-    ORDER BY e.event_date ASC
+    ORDER BY $orderBy
 ");
+
 $stmt->execute();
 $events = $stmt->fetchAll();
 
@@ -35,7 +56,15 @@ if ($userId) {
     <h1 class="display-5 fw-bold">Welcome to EventJoin</h1>
     <p class="lead">Discover upcoming public events and join the fun!</p>
 </section>
-
+<form method="GET" class="mb-4 text-end">
+    <label class="me-2 fw-bold">Sort By:</label>
+    <select name="sort" onchange="this.form.submit()" class="form-select d-inline w-auto">
+        <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Date (Newest First)</option>
+        <option value="oldest" <?= $sort === 'oldest' ? 'selected' : '' ?>>Date (Oldest First)</option>
+        <option value="az" <?= $sort === 'az' ? 'selected' : '' ?>>A–Z</option>
+        <option value="za" <?= $sort === 'za' ? 'selected' : '' ?>>Z–A</option>
+    </select>
+</form>
 <div class="main-content flex-grow-1">
     <div class="container py-5">
         <?php if (count($events) > 0): ?>

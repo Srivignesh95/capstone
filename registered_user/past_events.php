@@ -13,14 +13,30 @@ include '../includes/sidebar.php';
 $user_id = $_SESSION['user_id'];
 
 // Fetch past RSVP'd and created events
-$stmt = $pdo->prepare("
+$sort = $_GET['sort'] ?? 'newest';
+
+switch ($sort) {
+    case 'az':
+        $orderBy = 'title ASC';
+        break;
+    case 'za':
+        $orderBy = 'title DESC';
+        break;
+    case 'oldest':
+        $orderBy = 'event_date ASC';
+        break;
+    default:
+        $orderBy = 'event_date DESC';
+        break;
+}
+$query = "
     SELECT 
         e.id, e.title, e.event_date, e.event_time, e.description, e.created_by,
         e.banner_image, h.name AS hall_name
     FROM event_rsvps r
     JOIN events e ON r.event_id = e.id
     JOIN halls h ON e.hall_id = h.id
-    WHERE r.user_id = ? AND r.rsvp_status = 'yes' AND e.event_date < CURDATE()
+    WHERE r.user_id = :uid AND r.rsvp_status = 'yes' AND e.event_date < CURDATE()
 
     UNION
 
@@ -29,12 +45,13 @@ $stmt = $pdo->prepare("
         e.banner_image, h.name AS hall_name
     FROM events e
     JOIN halls h ON e.hall_id = h.id
-    WHERE e.created_by = ? AND e.event_date < CURDATE()
+    WHERE e.created_by = :uid2 AND e.event_date < CURDATE()
 
-    ORDER BY event_date DESC
-");
+    ORDER BY $orderBy
+";
 
-$stmt->execute([$user_id, $user_id]);
+$stmt = $pdo->prepare($query);
+$stmt->execute(['uid' => $user_id, 'uid2' => $user_id]);
 $events = $stmt->fetchAll();
 ?>
 
@@ -43,6 +60,15 @@ $events = $stmt->fetchAll();
         <h1 class="display-6 fw-bold">Past Events</h1>
         <p class="lead">View all events you’ve attended or organized in the past.</p>
     </section>
+    <form method="GET" class="mb-4 text-end">
+        <label class="me-2 fw-bold">Sort By:</label>
+        <select name="sort" onchange="this.form.submit()" class="form-select d-inline w-auto">
+            <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Date (Newest First)</option>
+            <option value="oldest" <?= $sort === 'oldest' ? 'selected' : '' ?>>Date (Oldest First)</option>
+            <option value="az" <?= ($_GET['sort'] ?? '') === 'az' ? 'selected' : '' ?>>A–Z</option>
+            <option value="za" <?= ($_GET['sort'] ?? '') === 'za' ? 'selected' : '' ?>>Z–A</option>
+        </select>
+    </form>
 
     <div class="container py-4">
         <?php if (count($events) > 0): ?>

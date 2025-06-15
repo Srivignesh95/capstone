@@ -19,9 +19,26 @@ $userStmt = $pdo->prepare("SELECT email FROM users WHERE id = ?");
 $userStmt->execute([$user_id]);
 $userEmail = $userStmt->fetchColumn();
 
-$stmt = $pdo->prepare("
+$sort = $_GET['sort'] ?? 'newest';
+switch ($sort) {
+    case 'az':
+        $orderBy = 'title ASC';
+        break;
+    case 'za':
+        $orderBy = 'title DESC';
+        break;
+    case 'oldest':
+        $orderBy = 'event_date ASC';
+        break;
+    default:
+        $orderBy = 'event_date DESC'; // newest first
+        break;
+}
+
+// SQL query
+$query = "
     SELECT e.id, e.title, e.event_date, e.event_time, e.description, e.created_by,
-           e.banner_image, h.name AS hall_name
+           e.banner_image, e.status, h.name AS hall_name
     FROM event_rsvps r
     JOIN events e ON r.event_id = e.id
     JOIN halls h ON e.hall_id = h.id
@@ -30,7 +47,7 @@ $stmt = $pdo->prepare("
     UNION
 
     SELECT e.id, e.title, e.event_date, e.event_time, e.description, e.created_by,
-           e.banner_image, h.name AS hall_name
+           e.banner_image, e.status, h.name AS hall_name
     FROM guests g
     JOIN events e ON g.event_id = e.id
     JOIN halls h ON e.hall_id = h.id
@@ -39,18 +56,17 @@ $stmt = $pdo->prepare("
     UNION
 
     SELECT e.id, e.title, e.event_date, e.event_time, e.description, e.created_by,
-           e.banner_image, h.name AS hall_name
+           e.banner_image, e.status, h.name AS hall_name
     FROM events e
     JOIN halls h ON e.hall_id = h.id
     WHERE e.created_by = ? AND e.event_date >= CURDATE()
 
-    ORDER BY event_date ASC
-");
+    ORDER BY $orderBy
+";
 
+$stmt = $pdo->prepare($query);
 $stmt->execute([$user_id, $userEmail, $user_id]);
 $events = $stmt->fetchAll();
-
-
 ?>
 
 <div class="main-content">
@@ -58,7 +74,15 @@ $events = $stmt->fetchAll();
         <h1 class="display-6 fw-bold">Upcoming Events You'll be at</h1>
         <p class="lead">Keep track of your confirmed upcoming events.</p>
     </section>
-
+    <form method="GET" class="mb-4 text-end">
+        <label class="me-2 fw-bold">Sort By:</label>
+        <select name="sort" onchange="this.form.submit()" class="form-select d-inline w-auto">
+            <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Date (Newest First)</option>
+            <option value="oldest" <?= $sort === 'oldest' ? 'selected' : '' ?>>Date (Oldest First)</option>
+            <option value="az" <?= $sort === 'az' ? 'selected' : '' ?>>A–Z</option>
+            <option value="za" <?= $sort === 'za' ? 'selected' : '' ?>>Z–A</option>
+    </select>
+    </form>
     <div class="container py-4">
         <?php if (count($events) > 0): ?>
             <div class="row">
