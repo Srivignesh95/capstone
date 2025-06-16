@@ -19,7 +19,7 @@ if (!$event_id) {
 }
 
 // Validate ownership
-$stmt = $pdo->prepare("SELECT * FROM events WHERE id = ? AND created_by = ? AND status = 'approved'");
+$stmt = $pdo->prepare("SELECT id, name, email, note, plus_one, rsvp_token, rsvp_status FROM guests WHERE event_id = ?");
 $stmt->execute([$event_id, $user_id]);
 $event = $stmt->fetch();
 
@@ -173,6 +173,7 @@ $guests = $stmt->fetchAll();
                         <th>Name</th>
                         <th>Email</th>
                         <th>Note</th>
+                        <th>RSVP Status</th>
                         <th>+1</th>
                         <th>Actions</th>
                     </tr>
@@ -183,12 +184,23 @@ $guests = $stmt->fetchAll();
                             <td><?= htmlspecialchars($g['name']) ?></td>
                             <td><?= htmlspecialchars($g['email']) ?></td>
                             <td><?= htmlspecialchars($g['note']) ?></td>
+                            <td>
+                                <?php
+                                    if ($g['rsvp_status'] === 'yes') {
+                                        echo '<span class="badge bg-success">Confirmed</span>';
+                                    } elseif ($g['rsvp_status'] === 'no') {
+                                        echo '<span class="badge bg-danger">Declined</span>';
+                                    } else {
+                                        echo '<span class="badge bg-secondary">Pending</span>';
+                                    }
+                                ?>
+                            </td>
                             <td><?= $g['plus_one'] ? 'Yes' : 'No' ?></td>
                             <td>
                                 <a href="edit_guest.php?event_id=<?= $event_id ?>&guest_id=<?= $g['id'] ?>" class="btn btn-sm btn-warning">Edit</a>
                                 <a href="delete_guest.php?event_id=<?= $event_id ?>&guest_id=<?= $g['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
                                 <?php if (!empty($g['rsvp_token'])): ?>
-                                    <a href="../guest/confirm_rsvp.php?token=<?= $g['rsvp_token'] ?>" target="_blank" class="btn btn-sm btn-outline-info mt-1">RSVP Link</a>
+                                    <a href="/capstone/guest/confirm_rsvp.php?token=<?= $g['rsvp_token'] ?>" target="_blank" class="btn btn-sm btn-outline-info mt-1">RSVP Link</a>
                                 <?php endif; ?>
                             </td>
                         </tr>

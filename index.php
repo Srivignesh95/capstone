@@ -9,7 +9,7 @@ include 'includes/header.php';
 include 'includes/sidebar.php';
 
 $userId = $_SESSION['user_id'] ?? null;
-$view = $_GET['view'] ?? 'grid'; // 'grid' or 'calendar'
+$view = $_GET['view'] ?? 'grid';
 $sort = $_GET['sort'] ?? 'newest';
 
 switch ($sort) {
@@ -59,8 +59,8 @@ if ($userId) {
         <input type="hidden" name="view" value="grid">
         <label class="me-2 fw-bold">Sort By:</label>
         <select name="sort" onchange="this.form.submit()" class="form-select d-inline w-auto">
-            <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Date (Newest First)</option>
-            <option value="oldest" <?= $sort === 'oldest' ? 'selected' : '' ?>>Date (Oldest First)</option>
+            <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Date (Oldest First)</option>
+            <option value="oldest" <?= $sort === 'oldest' ? 'selected' : '' ?>>Date (Newest First)</option>
             <option value="az" <?= $sort === 'az' ? 'selected' : '' ?>>A–Z</option>
             <option value="za" <?= $sort === 'za' ? 'selected' : '' ?>>Z–A</option>
         </select>
