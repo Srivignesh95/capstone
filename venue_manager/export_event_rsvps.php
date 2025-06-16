@@ -52,12 +52,13 @@ if (count($guests) === 0) {
     exit;
 }
 
-// Output guest rows
+$firstRow = true;
+
 foreach ($guests as $g) {
     fputcsv($output, [
-        $event['title'],
-        $event['event_date'],
-        $event['requester_name'],
+        $firstRow ? $event['title'] : '',
+        $firstRow ? $event['event_date'] : '',
+        $firstRow ? $event['requester_name'] : '',
         $g['name'],
         $g['email'],
         strtoupper($g['rsvp_status']),
@@ -65,6 +66,8 @@ foreach ($guests as $g) {
         $g['note'],
         $g['rsvp_at']
     ]);
+
+    $firstRow = false;
 }
 
 fclose($output);
