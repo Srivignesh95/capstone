@@ -19,7 +19,7 @@ if (!$event_id) {
 }
 
 // Validate ownership
-$stmt = $pdo->prepare("SELECT id, name, email, note, plus_one, rsvp_token, rsvp_status FROM guests WHERE event_id = ?");
+$stmt = $pdo->prepare("SELECT * FROM events WHERE id = ? AND created_by = ? AND status = 'approved'");
 $stmt->execute([$event_id, $user_id]);
 $event = $stmt->fetch();
 
@@ -115,7 +115,7 @@ Confirm RSVP: $confirmation_url\n\nAdd to Google Calendar:\n$googleCalLink";
 }
 
 // Fetch all guests
-$stmt = $pdo->prepare("SELECT id, name, email, note, plus_one, rsvp_token FROM guests WHERE event_id = ?");
+$stmt = $pdo->prepare("SELECT id, name, email, note, plus_one, rsvp_token, rsvp_status FROM guests WHERE event_id = ?");
 $stmt->execute([$event_id]);
 $guests = $stmt->fetchAll();
 ?>
