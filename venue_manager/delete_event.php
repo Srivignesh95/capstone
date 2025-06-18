@@ -7,15 +7,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'venue_manager') {
     exit;
 }
 
-// Handle POST submission
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['event_id'])) {
     $event_id = $_POST['event_id'];
-
-    // Delete related RSVPs and Guests first (to maintain foreign key constraints)
     $pdo->prepare("DELETE FROM event_rsvps WHERE event_id = ?")->execute([$event_id]);
     $pdo->prepare("DELETE FROM guests WHERE event_id = ?")->execute([$event_id]);
-
-    // Delete the event itself
     $deleteStmt = $pdo->prepare("DELETE FROM events WHERE id = ?");
     $deleteStmt->execute([$event_id]);
 

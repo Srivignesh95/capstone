@@ -33,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$already_submitted) {
     $stmt = $pdo->prepare("UPDATE guests SET rsvp_status = ?, note = ?, plus_one = ?, rsvp_at = NOW() WHERE id = ?");
     $stmt->execute([$rsvp_status, $rsvp_note, $plus_one, $guest['id']]);
 
-    // Send RSVP confirmation email if guest email exists
     if (!empty($guest['email'])) {
         $to = $guest['email'];
         $subject = "Your RSVP has been received – " . $event['title'];
@@ -68,15 +67,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$already_submitted) {
 
     $submitted = true;
     $already_submitted = true;
-
-    // Refresh guest data
     $guest['rsvp_status'] = $rsvp_status;
     $guest['note'] = $rsvp_note;
     $guest['plus_one'] = $plus_one;
     $guest['rsvp_at'] = date('Y-m-d H:i:s');
 }
 
-// Fetch event details
+
 $eventStmt = $pdo->prepare("
     SELECT e.title, e.description, e.event_date, e.event_time, h.name AS hall_name
     FROM events e
@@ -86,7 +83,7 @@ $eventStmt = $pdo->prepare("
 $eventStmt->execute([$guest['event_id']]);
 $event = $eventStmt->fetch();
 
-// Google Calendar link
+
 $start = date('Ymd\THis', strtotime($event['event_date'] . ' ' . $event['event_time']));
 $end = date('Ymd\THis', strtotime($event['event_date'] . ' ' . $event['event_time'] . ' +2 hours'));
 $googleLink = "https://www.google.com/calendar/render?action=TEMPLATE" .

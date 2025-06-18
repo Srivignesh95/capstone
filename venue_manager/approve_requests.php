@@ -7,7 +7,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'venue_manager') {
     exit;
 }
 
-// Approve or reject action
 if (isset($_GET['id']) && isset($_GET['action'])) {
     $id = $_GET['id'];
     $action = $_GET['action'];
@@ -20,7 +19,6 @@ if (isset($_GET['id']) && isset($_GET['action'])) {
     }
 }
 
-// Fetch all pending events
 $stmt = $pdo->query("
     SELECT e.id, e.title, e.event_date, e.rsvp_deadline, h.name AS hall_name, u.name AS requestor
     FROM events e

@@ -4,7 +4,6 @@ require_once '../config/conn.php';
 include '../includes/header.php';
 include '../includes/sidebar.php';
 
-// Ensure user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login.php");
     exit;
@@ -19,7 +18,6 @@ if (!$eventId) {
     exit;
 }
 
-// Validate event: must be approved and public
 $eventStmt = $pdo->prepare("SELECT * FROM events WHERE id = ? AND is_public = 1 AND status = 'approved'");
 $eventStmt->execute([$eventId]);
 $event = $eventStmt->fetch();
@@ -30,7 +28,6 @@ if (!$event) {
     exit;
 }
 
-// Check if user already RSVP'd
 $rsvpCheck = $pdo->prepare("SELECT * FROM event_rsvps WHERE user_id = ? AND event_id = ?");
 $rsvpCheck->execute([$userId, $eventId]);
 $alreadyRSVPd = $rsvpCheck->rowCount() > 0;
@@ -47,7 +44,6 @@ $user = $userStmt->fetch();
 $userEmail = $user['email'];
 $userName = $user['name'];
 
-// Fetch event details
 $eventTitle = $event['title'];
 $eventDate = date('F j, Y', strtotime($event['event_date']));
 $eventTime = date('g:i A', strtotime($event['event_time']));

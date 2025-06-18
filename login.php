@@ -6,17 +6,15 @@ include 'includes/sidebar.php';
 
 $error = '';
 
-// Capture GET redirect and store in session
 if (isset($_GET['redirect'])) {
     $_SESSION['redirect_after_login'] = $_GET['redirect'];
 }
 
-// Handle form submission
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    // Capture POST redirect again to preserve it
     if (isset($_POST['redirect'])) {
         $_SESSION['redirect_after_login'] = $_POST['redirect'];
     }
@@ -29,11 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['username'] = $user['first_name'] ?? '';
-
-        // Load profile pic into session (optional for nav avatar)
         $_SESSION['profile_pic'] = $user['profile_pic'] ?? '';
 
-        // Redirect logic
         if (isset($_SESSION['redirect_after_login'])) {
             $redirectTo = $_SESSION['redirect_after_login'];
             unset($_SESSION['redirect_after_login']);
@@ -41,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Role-based fallback
         if ($user['role'] === 'admin') {
             header("Location: /capstone/dashboard.php");
         } elseif ($user['role'] === 'requestor') {
@@ -57,13 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <div class="login-container">
-    <!-- Left Panel -->
     <div class="login-left">
         <h1>Log In to <br> EventJoin</h1>
         <p>Connect, coordinate, and engage with your events smoothly.</p>
     </div>
 
-    <!-- Right Panel -->
     <div class="login-right">
         <h2>Sign In to your Account</h2>
         <p>Welcome back! Please enter your details</p>

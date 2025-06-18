@@ -10,7 +10,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'venue_manager') {
 include '../includes/header.php';
 include '../includes/sidebar.php';
 
-// Fetch all pending events
 $stmt = $pdo->prepare("SELECT e.id, e.title, e.event_date, e.event_time, e.rsvp_deadline, e.rsvp_limit, u.email AS requestor_email, h.name AS hall_name
     FROM events e
     JOIN users u ON e.created_by = u.id
@@ -55,12 +54,10 @@ $events = $stmt->fetchAll();
                                     <button type="submit" name="action" value="approve" class="btn btn-sm btn-success">Approve</button>
                                 </form>
 
-                                <!-- Button to open modal -->
                                 <button type="button" class="btn btn-sm btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#rejectModal<?= $event['id'] ?>">
                                     Reject
                                 </button>
 
-                                <!-- Modal -->
                                 <div class="modal fade" id="rejectModal<?= $event['id'] ?>" tabindex="-1" aria-labelledby="rejectLabel<?= $event['id'] ?>" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <form method="POST" action="process_event_status.php">

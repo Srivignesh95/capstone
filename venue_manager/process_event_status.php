@@ -16,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Fetch event info + user email
     $eventStmt = $pdo->prepare("
         SELECT e.title, u.email
         FROM events e
@@ -38,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->prepare("UPDATE events SET status = 'approved', rejection_reason = NULL WHERE id = ?")
             ->execute([$event_id]);
 
-        // Send approval email
         $subject = "Your Event '$eventTitle' Has Been Approved!";
         $body = "Hi,\n\nYour event '$eventTitle' has been approved by the Venue Manager.\n\nYou can now manage your guests and view it on the dashboard.\n\nThank you!\nEventJoin Team";
     } else {
@@ -46,12 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->prepare("UPDATE events SET status = 'rejected', rejection_reason = ? WHERE id = ?")
             ->execute([$reason, $event_id]);
 
-        // Send rejection email
         $subject = "Your Event '$eventTitle' Has Been Rejected";
         $body = "Hi,\n\nYour event '$eventTitle' has been rejected by the Venue Manager.\n\nReason: $reason\n\nPlease update your event and resubmit.\n\nRegards,\nEventJoin Team";
     }
 
-    // Send email
     $headers = "From: no-reply@eventjoin.com";
     mail($userEmail, $subject, $body, $headers);
 }

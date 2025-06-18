@@ -23,26 +23,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'delete') {
-        // Step 1: Find all events created by this user
         $stmt = $pdo->prepare("SELECT id FROM events WHERE created_by = ?");
         $stmt->execute([$user_id]);
         $eventIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-        // Step 2: Delete all associated RSVPs and guests for these events
         if (!empty($eventIds)) {
             foreach ($eventIds as $eventId) {
                 $pdo->prepare("DELETE FROM event_rsvps WHERE event_id = ?")->execute([$eventId]);
                 $pdo->prepare("DELETE FROM guests WHERE event_id = ?")->execute([$eventId]);
             }
-            // Step 3: Delete the events
             $in = str_repeat('?,', count($eventIds) - 1) . '?';
             $pdo->prepare("DELETE FROM events WHERE id IN ($in)")->execute($eventIds);
         }
 
-        // Step 4: Delete the user’s RSVPs (to other events)
         $pdo->prepare("DELETE FROM event_rsvps WHERE user_id = ?")->execute([$user_id]);
 
-        // Step 5: Delete the user
         $pdo->prepare("DELETE FROM users WHERE id = ?")->execute([$user_id]);
 
         $_SESSION['success'] = "User and all associated data deleted successfully.";

@@ -11,11 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
-
-    // Compose full name
     $name = $first_name . ' ' . $last_name;
 
-    // Validation
     if (!$first_name || !$last_name || !$email || !$password || !$confirm_password) {
         $errors[] = "All fields are required.";
     }
@@ -32,14 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Password must be at least 6 characters.";
     }
 
-    // Check if email already exists
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
     $stmt->execute([$email]);
     if ($stmt->fetch()) {
         $errors[] = "Email is already registered.";
     }
 
-    // Insert into DB if no errors
     if (empty($errors)) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         $insert = $pdo->prepare("INSERT INTO users (first_name, last_name, name, email, password, role) VALUES (?, ?, ?, ?, ?, 'requestor')");

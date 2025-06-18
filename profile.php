@@ -12,7 +12,6 @@ if (!isset($_SESSION['user_id'])) {
 $userId = $_SESSION['user_id'];
 $message = '';
 
-// Fetch user info
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$userId]);
 $user = $stmt->fetch();
@@ -25,9 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $city = $_POST['city'] ?? '';
     $country = $_POST['country'] ?? '';
     $bio = $_POST['bio'] ?? '';
-    $profile_pic_filename = $user['profile_pic']; // fallback to existing
+    $profile_pic_filename = $user['profile_pic']; 
 
-    // Handle profile pic upload
+
     if (isset($_FILES['profile_pic']) && $_FILES['profile_pic']['error'] === UPLOAD_ERR_OK) {
         $ext = pathinfo($_FILES['profile_pic']['name'], PATHINFO_EXTENSION);
         $new_filename = 'user_' . $userId . '_' . time() . '.' . $ext;
@@ -38,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Update user data
     $updateStmt = $pdo->prepare("
         UPDATE users 
         SET first_name = ?, last_name = ?, phone = ?, address = ?, city = ?, country = ?, bio = ?, profile_pic = ?

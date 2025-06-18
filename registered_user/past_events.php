@@ -11,8 +11,6 @@ include '../includes/header.php';
 include '../includes/sidebar.php';
 
 $user_id = $_SESSION['user_id'];
-
-// Fetch past RSVP'd and created events
 $sort = $_GET['sort'] ?? 'newest';
 
 switch ($sort) {

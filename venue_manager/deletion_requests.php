@@ -10,7 +10,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'venue_manager') {
 include '../includes/header.php';
 include '../includes/sidebar.php';
 
-// Fetch events that have a deletion request
 $stmt = $pdo->prepare("SELECT e.id, e.title, e.event_date, e.event_time, h.name AS hall_name, u.email AS creator_email
     FROM events e
     JOIN halls h ON e.hall_id = h.id

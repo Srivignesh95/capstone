@@ -21,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $submitted = true;
 }
 
-// Fetch event title
 $title = "";
 if ($event_id) {
     $stmt = $pdo->prepare("SELECT title FROM events WHERE id = ?");

@@ -10,7 +10,6 @@ if (!isset($_SESSION['user_id'])) {
 include '../includes/header.php';
 include '../includes/sidebar.php';
 
-// Fetch events submitted by the current requestor
 $stmt = $pdo->prepare("
     SELECT e.id, e.title, e.event_date, e.rsvp_deadline, e.status, e.delete_requested, h.name AS hall_name
     FROM events e

@@ -12,7 +12,6 @@
     <div class="sidebar-menu-area">
         <ul class="sidebar-menu">
             <?php if (!isset($_SESSION['user_id'])): ?>
-                <!-- Visitor Menu -->
                 <li>
                     <a href="/capstone/index.php">
                         <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
@@ -32,7 +31,6 @@
                     </a>
                 </li>
             <?php else: ?>
-                <!-- Logged-in Registered User Menu -->
                 <li>
                     <a href="/capstone/index.php">
                         <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
@@ -40,7 +38,6 @@
                     </a>
                 </li>
                 <?php if ($_SESSION['role'] === 'venue_manager'): ?>
-                    <!-- Venue Manager Menu -->
                     <li class="sidebar-divider"></li>
                     <li>
                         <a href="/capstone/venue_manager/admin_dashboard.php">

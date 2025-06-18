@@ -14,16 +14,13 @@ if (!$event_id) {
     exit;
 }
 
-// Set headers to download as CSV
 header('Content-Type: text/csv; charset=utf-8');
 header('Content-Disposition: attachment; filename=event_rsvps_' . $event_id . '.csv');
 
 $output = fopen('php://output', 'w');
 
-// Column headers
 fputcsv($output, ['Event Title', 'Event Date', 'Requester Name', 'Guest Name', 'Guest Email', 'RSVP Status', '+1', 'Note', 'RSVP At']);
 
-// Fetch event + requester
 $eventStmt = $pdo->prepare("
     SELECT e.title, e.event_date, u.name AS requester_name
     FROM events e
@@ -38,7 +35,6 @@ if (!$event) {
     exit;
 }
 
-// Fetch guests for the event
 $guestStmt = $pdo->prepare("
     SELECT name, email, rsvp_status, plus_one, note, rsvp_at
     FROM guests

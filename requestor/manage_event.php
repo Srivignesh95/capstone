@@ -18,7 +18,6 @@ if (!$event_id) {
     exit;
 }
 
-// Validate ownership
 $stmt = $pdo->prepare("SELECT * FROM events WHERE id = ? AND created_by = ? AND status = 'approved'");
 $stmt->execute([$event_id, $user_id]);
 $event = $stmt->fetch();
@@ -30,11 +29,11 @@ if (!$event) {
 
 $message = "";
 
-// Upload CSV
+
 if (isset($_POST['upload_csv']) && isset($_FILES['guest_csv'])) {
     $file = $_FILES['guest_csv']['tmp_name'];
     $handle = fopen($file, 'r');
-    fgetcsv($handle); // skip header
+    fgetcsv($handle); 
 
     while (($data = fgetcsv($handle)) !== false) {
         $capStmt = $pdo->prepare("SELECT COUNT(*) FROM guests WHERE event_id = ?");
@@ -65,7 +64,6 @@ if (isset($_POST['upload_csv']) && isset($_FILES['guest_csv'])) {
     $message = "Guest list uploaded successfully.";
 }
 
-// Add manually
 if (isset($_POST['add_guest'])) {
     $capStmt = $pdo->prepare("SELECT COUNT(*) FROM guests WHERE event_id = ?");
     $capStmt->execute([$event_id]);
@@ -114,7 +112,6 @@ Confirm RSVP: $confirmation_url\n\nAdd to Google Calendar:\n$googleCalLink";
     }
 }
 
-// Fetch all guests
 $stmt = $pdo->prepare("SELECT id, name, email, note, plus_one, rsvp_token, rsvp_status FROM guests WHERE event_id = ?");
 $stmt->execute([$event_id]);
 $guests = $stmt->fetchAll();

@@ -10,7 +10,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'venue_manager') {
 include '../includes/header.php';
 include '../includes/sidebar.php';
 
-// Fetch rejected events
 $stmt = $pdo->prepare("
     SELECT e.id, e.title, e.event_date, e.event_time, e.rsvp_deadline, e.rsvp_limit, 
            e.is_public, e.description, e.created_by, e.banner_image, h.name AS hall_name, u.email

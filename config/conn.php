@@ -1,11 +1,12 @@
 <?php
 if ($_SERVER['HTTP_HOST'] === 'localhost') {
-    // Local dev
+    // Local server details
     $host = 'localhost';
 	$db = 'eventjoin';
 	$user = 'root';
 	$pass = '';
 } else {
+    // my Hostinger server details
     $host = 'localhost';
 	$db = 'u522900848_capstone';
 	$user = 'u522900848_capstone';

@@ -16,7 +16,6 @@ if (!$event_id) {
     exit;
 }
 
-// Fetch event
 $stmt = $pdo->prepare("SELECT * FROM events WHERE id = ? AND created_by = ?");
 $stmt->execute([$event_id, $_SESSION['user_id']]);
 $event = $stmt->fetch();
@@ -28,7 +27,7 @@ if (!$event) {
 
 $isApproved = $event['status'] === 'approved';
 
-// Fetch halls for dropdown
+
 $hallStmt = $pdo->query("SELECT id, name FROM halls");
 $halls = $hallStmt->fetchAll();
 
@@ -37,12 +36,11 @@ $message = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = $_POST['title'];
     $description = $_POST['description'];
-    $banner_image = $event['banner_image']; // Keep existing by default
+    $banner_image = $event['banner_image']; 
 
-    // Handle banner upload
     if (isset($_FILES['banner_image']) && $_FILES['banner_image']['error'] === UPLOAD_ERR_OK) {
         $ext = pathinfo($_FILES['banner_image']['name'], PATHINFO_EXTENSION);
-        $filename = 'event_' . $event_id . '_' . time() . '.jpg'; // Save as JPG
+        $filename = 'event_' . $event_id . '_' . time() . '.jpg'; 
         $uploadDir = '../assets/images/';
         $targetPath = $uploadDir . $filename;
     
@@ -51,15 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     
         $tmpPath = $_FILES['banner_image']['tmp_name'];
-    
-        // Resize to 320x170 using GD
+
         [$originalWidth, $originalHeight] = getimagesize($tmpPath);
         $dstWidth = 320;
         $dstHeight = 170;
     
         $dstImage = imagecreatetruecolor($dstWidth, $dstHeight);
     
-        // Load source image based on mime type
         $mime = mime_content_type($tmpPath);
         switch ($mime) {
             case 'image/jpeg':
@@ -78,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
         if ($srcImage) {
             imagecopyresampled($dstImage, $srcImage, 0, 0, 0, 0, $dstWidth, $dstHeight, $originalWidth, $originalHeight);
-            imagejpeg($dstImage, $targetPath, 90); // Save as JPEG
+            imagejpeg($dstImage, $targetPath, 90); 
             imagedestroy($dstImage);
             imagedestroy($srcImage);
             $banner_image = $filename;
@@ -156,7 +152,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
 
-        <!-- Date -->
         <div class="col-md-6">
             <label class="form-label">Date</label>
             <?php if ($isApproved): ?>
@@ -166,7 +161,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
 
-        <!-- Time -->
         <div class="col-md-6">
             <label class="form-label">Time</label>
             <?php if ($isApproved): ?>
@@ -176,7 +170,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
 
-        <!-- RSVP Deadline -->
         <div class="col-md-6">
             <label class="form-label">RSVP Deadline</label>
             <?php if ($isApproved): ?>
@@ -186,7 +179,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
 
-        <!-- RSVP Limit -->
         <div class="col-md-6">
             <label class="form-label">RSVP Limit</label>
             <?php if ($isApproved): ?>
@@ -196,7 +188,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
 
-        <!-- Visibility -->
         <div class="col-md-6">
             <label class="form-label">Event Visibility</label>
             <?php if ($isApproved): ?>
@@ -209,13 +200,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
 
-        <!-- Description -->
         <div class="col-12">
             <label class="form-label">Description</label>
             <textarea name="description" class="form-control" rows="4"><?= htmlspecialchars($event['description']) ?></textarea>
         </div>
 
-        <!-- Banner Image -->
         <div class="col-md-6">
             <label class="form-label">Banner Image</label><br>
             <?php if (!empty($event['banner_image']) && file_exists("../assets/images/" . $event['banner_image'])): ?>

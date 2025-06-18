@@ -14,7 +14,6 @@ if (!$user_id) {
     exit;
 }
 
-// Fetch user info
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();

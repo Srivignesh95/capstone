@@ -10,7 +10,6 @@ if (!isset($_SESSION['user_id'])) {
 include '../includes/header.php';
 include '../includes/sidebar.php';
 
-// Fetch halls for dropdown
 $hallStmt = $pdo->query("SELECT id, name FROM halls");
 $halls = $hallStmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -35,9 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ]);
 
     $message = "Event request submitted successfully!";
-
-
-    // Fetch user email
     $userStmt = $pdo->prepare("SELECT email, first_name FROM users WHERE id = ?");
     $userStmt->execute([$_SESSION['user_id']]);
     $user = $userStmt->fetch();
@@ -63,8 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $headers = "From: no-reply@eventjoin.com\r\n";
     $headers .= "Content-Type: text/plain; charset=utf-8\r\n";
-
-    // Send email
     mail($to, $subject, $body, $headers);
 
 }

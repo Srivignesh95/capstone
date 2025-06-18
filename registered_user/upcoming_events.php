@@ -11,10 +11,7 @@ include '../includes/header.php';
 include '../includes/sidebar.php';
 
 $user_id = $_SESSION['user_id'];
-
 $user_id = $_SESSION['user_id'];
-
-// Get the logged-in user's email
 $userStmt = $pdo->prepare("SELECT email FROM users WHERE id = ?");
 $userStmt->execute([$user_id]);
 $userEmail = $userStmt->fetchColumn();
@@ -31,11 +28,10 @@ switch ($sort) {
         $orderBy = 'event_date ASC';
         break;
     default:
-        $orderBy = 'event_date DESC'; // newest first
+        $orderBy = 'event_date DESC'; 
         break;
 }
 
-// SQL query
 $query = "
     SELECT e.id, e.title, e.event_date, e.event_time, e.description, e.created_by,
            e.banner_image, e.status, h.name AS hall_name
@@ -90,12 +86,12 @@ $events = $stmt->fetchAll();
                     <div class="col-md-6 col-lg-4">
                         <div class="event-card">
                             <?php
-                                $localPath = '../assets/images/' . $event['banner_image']; // Actual location
-                                $imageUrl = '/capstone/assets/images/' . htmlspecialchars($event['banner_image']); // For browser
+                                $localPath = '../assets/images/' . $event['banner_image'];
+                                $imageUrl = '/capstone/assets/images/' . htmlspecialchars($event['banner_image']); 
 
                                 $imagePath = (!empty($event['banner_image']) && file_exists($localPath))
                                     ? $imageUrl
-                                    : '/capstone/assets/images/630x350.png'; // fallback for browser
+                                    : '/capstone/assets/images/630x350.png'; 
                             ?>
 
                             <img src="<?= $imagePath ?>" class="img-fluid mb-2" style="border-radius: 8px; height: 170px; width: 100%; object-fit: cover;" alt="Event Banner">

@@ -10,7 +10,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'venue_manager') {
 include '../includes/header.php';
 include '../includes/sidebar.php';
 
-// Fetch all events with relevant RSVP stats
 $stmt = $pdo->query("SELECT 
         e.id, e.title, e.event_date, e.rsvp_limit, 
         COUNT(r.id) AS total_rsvps,

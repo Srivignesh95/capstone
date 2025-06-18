@@ -1,3 +1,6 @@
+/* ------------------------------------
+   Layout and General Structure
+------------------------------------- */
 body{
     display: flex;
     flex-direction: column;
@@ -9,12 +12,22 @@ body{
     padding: 20px;
     background: #f9f9f9;
 }
+
+/* ------------------------------------
+   Hero Section
+------------------------------------- */
+
 .hero {
     background: linear-gradient(to right, #6a11cb, #2575fc);
     color: white;
     padding: 60px 20px;
     text-align: center;
 }
+
+/* ------------------------------------
+   Event Card Styling
+------------------------------------- */
+
 .event-card {
     border: 1px solid #ccc;
     border-radius: 10px;
@@ -26,7 +39,11 @@ body{
 .event-card:hover {
     box-shadow: 0 4px 16px rgba(0,0,0,0.1);
 }
-/* Sidebar Styles */
+
+/* ------------------------------------
+   Sidebar Styling
+------------------------------------- */
+
 .sidebar {
     width: 240px;
     background-color: #ffffff;
@@ -35,7 +52,7 @@ body{
     top: 0;
     left: 0;
     bottom: 0;
-    padding-top: 70px; /* leave space for top nav */
+    padding-top: 70px; 
     overflow-y: auto;
     z-index: 1050;
     transition: transform 0.3s ease;
@@ -81,7 +98,7 @@ body{
     font-size: 20px;
 }
 
-/* Submenu Styles */
+
 .sidebar-submenu {
     list-style: none;
     padding-left: 20px;
@@ -97,7 +114,7 @@ body{
     color: #666;
 }
 
-/* Close Button (for mobile, optional) */
+
 .sidebar-close-btn {
     display: none;
     position: absolute;
@@ -108,7 +125,9 @@ body{
     font-size: 20px;
 }
 
-/*login page*/
+/* ------------------------------------
+   Login Page Layout
+------------------------------------- */
 
 .login-container {
     display: flex;
@@ -144,6 +163,12 @@ body{
 .login-right h2 {
     font-weight: bold;
 }
+
+/* ------------------------------------
+   Form Elements
+------------------------------------- */
+
+
 .form-control {
     border-radius: 10px;
     padding-left: 40px;
@@ -165,6 +190,9 @@ body{
     border-radius: 10px;
 }
 
+/* ------------------------------------
+   Footer
+------------------------------------- */
 
 footer {
     background-color: #f1f1f1;

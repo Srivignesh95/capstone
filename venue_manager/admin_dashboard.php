@@ -10,7 +10,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'venue_manager') {
 include '../includes/header.php';
 include '../includes/sidebar.php';
 
-// Fetch counts
 $pending = $pdo->query("SELECT COUNT(*) FROM events WHERE status = 'pending'")->fetchColumn();
 $approved = $pdo->query("SELECT COUNT(*) FROM events WHERE status = 'approved'")->fetchColumn();
 $rejected = $pdo->query("SELECT COUNT(*) FROM events WHERE status = 'rejected'")->fetchColumn();

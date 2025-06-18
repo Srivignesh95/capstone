@@ -48,7 +48,6 @@ if ($userId) {
 }
 ?>
 
-<!-- Hero Section -->
 <section class="hero">
     <h1 class="display-5 fw-bold">Welcome to EventJoin</h1>
     <p class="lead">Discover upcoming public events and join the fun!</p>
@@ -111,60 +110,11 @@ if ($userId) {
             <p class="text-muted text-center">No upcoming public events available at the moment.</p>
         <?php endif; ?>
     <?php else: ?>
-        <!-- Calendar View -->
         <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
         <div id="calendar"></div>
-
-        <script>
-                const rsvpedEvents = <?= json_encode(array_map('intval', $rsvpedEventIds)) ?>;
-                document.addEventListener('DOMContentLoaded', function () {
-                    const calendarEl = document.getElementById('calendar');
-                    const calendar = new FullCalendar.Calendar(calendarEl, {
-                        initialView: 'dayGridMonth',
-                        height: 'auto',
-                        events: <?= json_encode(array_map(function ($event) {
-                            return [
-                                'id' => $event['id'],
-                                'title' => $event['title'],
-                                'start' => $event['event_date'],
-                                'description' => nl2br(htmlspecialchars($event['description'])),
-                                'time' => date('g:i A', strtotime($event['event_time'])),
-                                'hall' => $event['hall_name'],
-                            ];
-                        }, $events)) ?>,
-                        eventClick: function (info) {
-                            const e = info.event.extendedProps;
-                            const eventId = parseInt(info.event.id);
-                            const isRSVPed = rsvpedEvents.includes(eventId);
-
-                            const registerButton = isRSVPed
-                                ? `<button class="btn btn-secondary w-100" disabled>Already Registered</button>`
-                                : `<form method="GET" action="/capstone/registered_user/confirm_public_rsvp.php">
-                                    <input type="hidden" name="event_id" value="${eventId}">
-                                    <button type="submit" class="btn btn-primary w-100">Register Now</button>
-                                </form>`;
-
-                            const modalContent = `
-                                <h5>${info.event.title}</h5>
-                                <p><strong>Date:</strong> ${info.event.start.toISOString().split('T')[0]}</p>
-                                <p><strong>Time:</strong> ${e.time}</p>
-                                <p><strong>Location:</strong> ${e.hall}</p>
-                                <p>${e.description}</p>
-                                <div class="mt-3">${registerButton}</div>
-                            `;
-
-                            document.getElementById('eventModalBody').innerHTML = modalContent;
-                            new bootstrap.Modal(document.getElementById('eventModal')).show();
-                        }
-                    });
-                    calendar.render();
-                });
-
-        </script>
     <?php endif; ?>
 </div>
-<!-- Modal for Event Details -->
 <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -173,11 +123,9 @@ if ($userId) {
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" id="eventModalBody">
-        <!-- Filled dynamically by JS -->
       </div>
     </div>
   </div>
 </div>
-
 
 <?php include 'includes/footer.php'; ?>
